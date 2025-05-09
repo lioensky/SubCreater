@@ -1,0 +1,8 @@
+
+[Intro1]Welcome to the Show!
+[Intro1ch]欢迎来到表演现场！
+[Verse1]This is the first verse.
+[Chorus1]Singing the chorus loudly.
+[Chorus1ch]大声歌唱副歌。
+[Outro]The End.
+    
