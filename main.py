@@ -55,20 +55,30 @@ def process_subtitles(subtitle_filepath: str, custom_settings: Optional[Dict] = 
         # The problem description implies filename from text: "[Sub1]第一句歌词.png"
         # So, we should use the full_tag_original + original_text for sanitization.
         
-        # Construct the string that represents the subtitle line for filename generation
-        # If [Sub1]Hello, then filename base is "Sub1_Hello"
-        # If [Sub1]Hello and [Sub1ch]你好, filename base is still "Sub1_Hello"
-        # The sanitize_filename function expects the tag as part of the input string.
-        filename_source_text = f"[{entry['full_tag_original']}]{original_text}"
+        # Construct the filename base from the original text only.
+        # Tags will be passed separately to the renderer.
+        base_filename = sanitize_filename(original_text)
+
+        current_tags = []
+        if 'full_tag_original' in entry and entry['full_tag_original']:
+            # Assuming full_tag_original is the raw tag string like "Intro1" or "Verse1"
+            # The renderer will add brackets, e.g., "[Intro1]"
+            current_tags.append(entry['full_tag_original'])
+        # If there could be other tags (e.g., from translated_text or a list in entry), add them here.
+        # For example, if entry might have entry['tags_list']: current_tags.extend(entry['tags_list'])
+
+        # Update the print statement to reflect the new filename structure
+        tag_prefix_for_print = ""
+        if current_tags:
+            tag_prefix_for_print = " ".join([f"[{tag}]" for tag in current_tags]) + " "
         
-        base_filename = sanitize_filename(filename_source_text)
-        
-        print(f"Rendering '{base_filename}.png'...")
+        print(f"Rendering '{tag_prefix_for_print}{base_filename}.png'...")
         
         output_path = render_subtitle_image(
             original_text=original_text,
             translated_text=entry.get("translated_text"),
-            filename_base=base_filename,
+            filename_base=base_filename, # Now only sanitized text content
+            tags=current_tags,           # Pass the extracted tags
             settings=render_settings
         )
 

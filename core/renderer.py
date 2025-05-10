@@ -19,10 +19,10 @@ DEFAULT_SETTINGS = {
     
     # Custom XY coordinates (used if text_align is "custom_xy")
     # These are for the top-left of the text bounding box.
-    "custom_x_original": 640, # Example for 1080p center-ish
-    "custom_y_original": 800, # Example for 1080p bottom-ish
-    "custom_x_translation": 640,
-    "custom_y_translation": 880,
+    "custom_x_original": 960,
+    "custom_y_original": 160,
+    "custom_x_translation": 960,
+    "custom_y_translation": 60,
 
     "output_directory": "output_images",
     "effects_original": {
@@ -196,6 +196,7 @@ def render_subtitle_image(
     original_text: str,
     translated_text: Optional[str] = None,
     filename_base: str = "subtitle",
+    tags: Optional[list[str]] = None,
     settings: Dict[str, Any] = None
 ) -> Optional[str]:
     """
@@ -205,6 +206,7 @@ def render_subtitle_image(
         original_text: The main subtitle text.
         translated_text: Optional translated text (appears below original).
         filename_base: Base name for the output PNG file.
+        tags: Optional list of strings to be prepended to the filename as [tag1] [tag2].
         settings: Dictionary of rendering settings. Uses DEFAULT_SETTINGS if None.
 
     Returns:
@@ -305,7 +307,11 @@ def render_subtitle_image(
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         
-        output_filepath = os.path.join(output_dir, f"{filename_base}.png")
+        tag_prefix = ""
+        if tags:
+            tag_prefix = " ".join([f"[{tag}]" for tag in tags]) + " "
+        
+        output_filepath = os.path.join(output_dir, f"{tag_prefix}{filename_base}.png")
         image.save(output_filepath)
         return output_filepath
 
@@ -338,6 +344,7 @@ if __name__ == '__main__':
     path1 = render_subtitle_image(
         original_text="Hello World! This is a test.",
         filename_base="test_single_line",
+        tags=["S1", "EN"],
         settings=settings_test1
     )
     if path1:
@@ -349,6 +356,7 @@ if __name__ == '__main__':
         original_text="Welcome to the Subtitle Generator",
         translated_text="欢迎使用字幕生成器",
         filename_base="test_dual_line",
+        tags=["S2", "CN", "DUAL"],
         settings=settings_test1 # Using same settings, but font might need to support Chinese
     )
     if path2:
@@ -362,6 +370,7 @@ if __name__ == '__main__':
         original_text="Left Aligned Text",
         translated_text="左对齐文本",
         filename_base="test_left_aligned",
+        tags=["S3", "ALIGN"],
         settings=settings_test3
     )
     if path3:
@@ -377,6 +386,7 @@ if __name__ == '__main__':
         original_text="720p Resolution Test",
         translated_text="720p 分辨率测试",
         filename_base="test_720p",
+        tags=["S4", "720P"],
         settings=settings_test4
     )
     if path4:

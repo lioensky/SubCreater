@@ -670,16 +670,27 @@ class SubtitleApp:
             if not original_text:
                 continue
 
-            filename_source_text = f"[{entry['full_tag_original']}]{original_text}"
-            base_filename = sanitize_filename(filename_source_text)
+            # Construct the filename base from the original text only.
+            # Tags will be passed separately to the renderer.
+            base_filename = sanitize_filename(original_text)
+
+            current_tags = []
+            if 'full_tag_original' in entry and entry['full_tag_original']:
+                current_tags.append(entry['full_tag_original'])
+            # Add other potential tags if necessary, similar to main.py
+
+            tag_prefix_for_status = ""
+            if current_tags:
+                tag_prefix_for_status = " ".join([f"[{tag}]" for tag in current_tags]) + " "
             
-            status_msg = f"正在生成 ({i+1}/{total_entries}): {base_filename}.png"
+            status_msg = f"正在生成 ({i+1}/{total_entries}): {tag_prefix_for_status}{base_filename}.png"
             self.root.after(0, lambda msg=status_msg: self.status_label.config(text=msg))
 
             render_subtitle_image(
                 original_text=original_text,
                 translated_text=entry.get("translated_text"),
-                filename_base=base_filename,
+                filename_base=base_filename, # Now only sanitized text content
+                tags=current_tags,           # Pass the extracted tags
                 settings=render_settings
             )
         
